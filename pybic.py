@@ -61,7 +61,6 @@ def pick_file(root_path):
             cwp = root_path
             continue
         # Pick one at random - must be dir, file, mount or link
-        pick_path = ''
         while 1:
             # Empty dirs are a dead end
             if cwp_contents == []:
