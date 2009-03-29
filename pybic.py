@@ -7,13 +7,15 @@ import logging
 from optparse import OptionParser
 
 parser = OptionParser()
+parser.add_option('-s', '--source-path', dest='source_path',
+        help='The source path')
 parser.add_option('-n', '--number-of-files', dest='filenumber', type='int',
         help='Number of files to pick')
 parser.add_option('-v', '--verbose', action='store_const', const=20,
         dest='out_lvl', help='Get extra information on the picking')
 parser.add_option('-d', '--debug', action='store_const', const=0,
         dest='out_lvl', help='Dump all debugging information')
-parser.set_defaults(out_lvl=30, filenumber=10)
+parser.set_defaults(out_lvl=30, filenumber=10, source_path='/')
 (options, args) = parser.parse_args()
 
 # Setup logging for commandline use
@@ -45,8 +47,6 @@ stderr.setLevel(logging.ERROR)
 stderr_fmt = logging.Formatter('%(levelname)s! %(message)s [%(name)s]')
 stderr.setFormatter(stderr_fmt)
 log.addHandler(stderr)
-
-source_path = '/'
 
 def pick_file(root_path):
     log = logging.getLogger('pick_file')
@@ -89,7 +89,7 @@ def pick_file(root_path):
 picks = []
 pick = ''
 while len(picks) < options.filenumber:
-    pick = pick_file(source_path)
+    pick = pick_file(options.source_path)
     if pick not in picks:
         picks.append(pick)
         print pick
