@@ -13,8 +13,6 @@ parser.add_option('-c', '--compare-path', dest='compare_path',
         help='The mirrored source path to be checked for consistancy')
 parser.add_option('-n', '--number-of-files', dest='filenumber', type='int',
         help='Number of files to pick')
-parser.add_option('-d', '--depth', dest='depth', type='int',
-        help='Depth of folders in to source to pick from')
 parser.add_option('-o', '--one-filesystem', dest='one_filesystem',
         action='store_true', help='Do not follow mount points')
 parser.add_option('-f', '--follow-mounts', dest='one_filesystem',
