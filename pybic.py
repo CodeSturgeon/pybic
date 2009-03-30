@@ -18,10 +18,10 @@ parser.add_option('-o', '--one-filesystem', dest='one_filesystem',
 parser.add_option('-f', '--follow-mounts', dest='one_filesystem',
         action='store_false', help='Do follow mount points')
 parser.add_option('-v', '--verbose', action='store_const', const=20,
-        dest='out_lvl', help='Get extra information on the picking')
+        dest='stdout_logLevel', help='Get extra information on the picking')
 parser.add_option('-V', '--debug', action='store_const', const=0,
-        dest='out_lvl', help='Dump all debugging information')
-parser.set_defaults(out_lvl=30, filenumber=10, search_path='/',
+        dest='stdout_logLevel', help='Dump all debugging information')
+parser.set_defaults(stdout_logLevel=30, filenumber=10, search_path='/',
         one_filesystem=True)
 (options, args) = parser.parse_args()
 
@@ -42,7 +42,7 @@ class MaxFilter(logging.Filter):
 
 # put info+warn to stdout
 stdout = logging.StreamHandler(sys.stdout)
-stdout.setLevel(options.out_lvl)
+stdout.setLevel(options.stdout_logLevel)
 stdout_fmt = logging.Formatter('%(name)-9s : %(levelname)s %(message)s')
 stdout.setFormatter(stdout_fmt)
 stdout.addFilter(MaxFilter())
