@@ -49,7 +49,7 @@ log.addHandler(stdout)
 # put err+crit to stderr
 stderr = logging.StreamHandler(sys.stderr)
 stderr.setLevel(logging.ERROR)
-stderr_fmt = logging.Formatter('%(levelname)s! %(message)s [%(name)s]')
+stderr_fmt = logging.Formatter('!!%(levelname)s!! %(message)s [%(name)s]')
 stderr.setFormatter(stderr_fmt)
 log.addHandler(stderr)
 
