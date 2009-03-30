@@ -8,16 +8,20 @@ from optparse import OptionParser
 
 parser = OptionParser()
 parser.add_option('-s', '--search-path', dest='search_path',
-        help='The source path')
+        help='The search path to pick files from')
+parser.add_option('-c', '--compare-path', dest='compare_path',
+        help='The mirrored source path to be checked for consistancy')
 parser.add_option('-n', '--number-of-files', dest='filenumber', type='int',
         help='Number of files to pick')
+parser.add_option('-d', '--depth', dest='depth', type='int',
+        help='Depth of folders in to source to pick from')
 parser.add_option('-o', '--one-filesystem', dest='one_filesystem',
         action='store_true', help='Do not follow mount points')
 parser.add_option('-f', '--follow-mounts', dest='one_filesystem',
         action='store_false', help='Do follow mount points')
 parser.add_option('-v', '--verbose', action='store_const', const=20,
         dest='out_lvl', help='Get extra information on the picking')
-parser.add_option('-d', '--debug', action='store_const', const=0,
+parser.add_option('-V', '--debug', action='store_const', const=0,
         dest='out_lvl', help='Dump all debugging information')
 parser.set_defaults(out_lvl=30, filenumber=10, search_path='/',
         one_filesystem=True)
@@ -98,6 +102,10 @@ def pick_file(root_path):
             break
     return cwp
 
+def compare(file_a, file_b):
+    print file_b
+    return True
+
 picks = []
 pick = ''
 log.debug('Looking for %i files'%options.filenumber)
@@ -106,5 +114,9 @@ while len(picks) < options.filenumber:
     if pick not in picks:
         picks.append(pick)
         print pick
+        if options.compare_path is not None:
+            compare_path = options.compare_path + \
+                    pick.lstrip(options.search_path)
+            compare(pick, compare_path)
     else:
         log.info('Picked duplicate %s, trying again'%pick)
