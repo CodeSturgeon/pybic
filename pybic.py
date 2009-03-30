@@ -94,14 +94,17 @@ def pick_file(root_path):
                 continue
             # By this point we are happy with the pick and move on
             cwp = pick_path
-            log.info(cwp)
+            log.debug('picking %s'%cwp)
             break
     return cwp
 
 picks = []
 pick = ''
+log.debug('Looking for %i files'%options.filenumber)
 while len(picks) < options.filenumber:
     pick = pick_file(options.source_path)
     if pick not in picks:
         picks.append(pick)
         print pick
+    else:
+        log.info('Picked duplicate %s, trying again'%pick)
