@@ -7,7 +7,7 @@ import logging
 from optparse import OptionParser
 
 parser = OptionParser()
-parser.add_option('-s', '--source-path', dest='source_path',
+parser.add_option('-s', '--search-path', dest='search_path',
         help='The source path')
 parser.add_option('-n', '--number-of-files', dest='filenumber', type='int',
         help='Number of files to pick')
@@ -19,7 +19,7 @@ parser.add_option('-v', '--verbose', action='store_const', const=20,
         dest='out_lvl', help='Get extra information on the picking')
 parser.add_option('-d', '--debug', action='store_const', const=0,
         dest='out_lvl', help='Dump all debugging information')
-parser.set_defaults(out_lvl=30, filenumber=10, source_path='/',
+parser.set_defaults(out_lvl=30, filenumber=10, search_path='/',
         one_filesystem=True)
 (options, args) = parser.parse_args()
 
@@ -102,7 +102,7 @@ picks = []
 pick = ''
 log.debug('Looking for %i files'%options.filenumber)
 while len(picks) < options.filenumber:
-    pick = pick_file(options.source_path)
+    pick = pick_file(options.search_path)
     if pick not in picks:
         picks.append(pick)
         print pick
