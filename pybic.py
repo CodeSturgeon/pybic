@@ -11,11 +11,16 @@ parser.add_option('-s', '--source-path', dest='source_path',
         help='The source path')
 parser.add_option('-n', '--number-of-files', dest='filenumber', type='int',
         help='Number of files to pick')
+parser.add_option('-o', '--one-filesystem', dest='one_filesystem',
+        action='store_true', help='Do not follow mount points')
+parser.add_option('-f', '--follow-mounts', dest='one_filesystem',
+        action='store_false', help='Do follow mount points')
 parser.add_option('-v', '--verbose', action='store_const', const=20,
         dest='out_lvl', help='Get extra information on the picking')
 parser.add_option('-d', '--debug', action='store_const', const=0,
         dest='out_lvl', help='Dump all debugging information')
-parser.set_defaults(out_lvl=30, filenumber=10, source_path='/')
+parser.set_defaults(out_lvl=30, filenumber=10, source_path='/',
+        one_filesystem=True)
 (options, args) = parser.parse_args()
 
 # Setup logging for commandline use
@@ -72,9 +77,16 @@ def pick_file(root_path):
             pick = random.choice(cwp_contents)
             # Make a full path for the pick
             pick_path = os.path.join(cwp, pick)
-            # Must be dir, file, mount or link
-            if not (os.path.isdir(pick_path) or os.path.isfile(pick_path)
-                        or os.path.ismount(pick_path)
+
+            # On to see if we can use the pick...
+            # If we are in one-filesystem mode we skip on mounts
+            if os.path.ismount(pick_path):
+                if options.one_filesystem:
+                    log.info('avoinding mount point %s'%pick_path)
+                    cwp_contents.remove(pick)
+                    continue
+            # Must be dir, file, or link tp be usable
+            elif not (os.path.isdir(pick_path) or os.path.isfile(pick_path)
                         or os.path.islink(pick_path)):
                 # If not, we remove it from the options and pick again
                 log.info('avoiding unuseful %s'%pick_path)
