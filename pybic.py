@@ -6,30 +6,6 @@ import random
 import logging
 from optparse import OptionParser
 
-parser = OptionParser()
-parser.add_option('-s', '--search-path', dest='search_path',
-        help='The search path to pick files from')
-parser.add_option('-c', '--compare-path', dest='compare_path',
-        help='The mirrored source path to be checked for consistancy')
-parser.add_option('-n', '--number-of-files', dest='filenumber', type='int',
-        help='Number of files to pick')
-parser.add_option('-o', '--one-filesystem', dest='one_filesystem',
-        action='store_true', help='Do not follow mount points')
-parser.add_option('-f', '--follow-mounts', dest='one_filesystem',
-        action='store_false', help='Do follow mount points')
-parser.add_option('-v', '--verbose', action='store_const', const=20,
-        dest='stdout_logLevel', help='Get extra information on the picking')
-parser.add_option('-V', '--debug', action='store_const', const=0,
-        dest='stdout_logLevel', help='Dump all debugging information')
-parser.set_defaults(stdout_logLevel=30, filenumber=10, search_path='/',
-        one_filesystem=True)
-(options, args) = parser.parse_args()
-
-# Setup logging for commandline use
-log = logging.getLogger()
-# Base logger should not filter on level
-log.setLevel(logging.NOTSET)
-
 class MaxFilter(logging.Filter):
     '''Small logging filter to block logging.ERROR level or above.
     Used to seperate stdout and stderr output
@@ -41,22 +17,7 @@ class MaxFilter(logging.Filter):
         else:
             return 0
 
-# put info+warn to stdout
-stdout = logging.StreamHandler(sys.stdout)
-stdout.setLevel(options.stdout_logLevel)
-stdout_fmt = logging.Formatter('%(name)-9s : %(levelname)s %(message)s')
-stdout.setFormatter(stdout_fmt)
-stdout.addFilter(MaxFilter())
-log.addHandler(stdout)
-
-# put err+crit to stderr
-stderr = logging.StreamHandler(sys.stderr)
-stderr.setLevel(logging.ERROR)
-stderr_fmt = logging.Formatter('!!%(levelname)s!! %(message)s [%(name)s]')
-stderr.setFormatter(stderr_fmt)
-log.addHandler(stderr)
-
-def pick_file(root_path):
+def pick_file(root_path, one_filesystem=False):
     '''Given a path, select a file at random'''
     log = logging.getLogger('pick_file')
     # Set [c]urrent [w]orking [p]ath
@@ -85,7 +46,7 @@ def pick_file(root_path):
             # On to see if we can use the pick...
             # If we are in one-filesystem mode we skip on mounts
             if os.path.ismount(pick_path):
-                if options.one_filesystem:
+                if one_filesystem:
                     log.info('avoinding mount point %s'%pick_path)
                     cwp_contents.remove(pick)
                     continue
@@ -107,17 +68,60 @@ def compare(file_a, file_b):
     print file_b
     return True
 
-picks = []
-pick = ''
-log.debug('Looking for %i files'%options.filenumber)
-while len(picks) < options.filenumber:
-    pick = pick_file(options.search_path)
-    if pick not in picks:
-        picks.append(pick)
-        print pick
-        if options.compare_path is not None:
-            compare_path = options.compare_path + \
-                    pick.lstrip(options.search_path)
-            compare(pick, compare_path)
-    else:
-        log.info('Picked duplicate %s, trying again'%pick)
+def main():
+    '''Standard main loop'''
+    parser = OptionParser()
+    parser.add_option('-s', '--search-path', dest='search_path',
+            help='The search path to pick files from')
+    parser.add_option('-c', '--compare-path', dest='compare_path',
+            help='The mirrored source path to be checked for consistancy')
+    parser.add_option('-n', '--number-of-files', dest='filenumber', type='int',
+            help='Number of files to pick')
+    parser.add_option('-o', '--one-filesystem', dest='one_filesystem',
+            action='store_true', help='Do not follow mount points')
+    parser.add_option('-f', '--follow-mounts', dest='one_filesystem',
+            action='store_false', help='Do follow mount points')
+    parser.add_option('-v', '--verbose', action='store_const', const=20,
+            dest='stdout_logLevel', help='Get extra information on the picking')
+    parser.add_option('-V', '--debug', action='store_const', const=0,
+            dest='stdout_logLevel', help='Dump all debugging information')
+    parser.set_defaults(stdout_logLevel=30, filenumber=10, search_path='/',
+            one_filesystem=True)
+    (options, args) = parser.parse_args()
+
+    # Setup logging for commandline use
+    log = logging.getLogger()
+    # Base logger should not filter on level
+    log.setLevel(logging.NOTSET)
+    # put info+warn to stdout
+    stdout = logging.StreamHandler(sys.stdout)
+    stdout.setLevel(options.stdout_logLevel)
+    stdout_fmt = logging.Formatter('%(name)-9s : %(levelname)s %(message)s')
+    stdout.setFormatter(stdout_fmt)
+    stdout.addFilter(MaxFilter())
+    log.addHandler(stdout)
+
+    # put err+crit to stderr
+    stderr = logging.StreamHandler(sys.stderr)
+    stderr.setLevel(logging.ERROR)
+    stderr_fmt = logging.Formatter('!!%(levelname)s!! %(message)s [%(name)s]')
+    stderr.setFormatter(stderr_fmt)
+    log.addHandler(stderr)
+
+    picks = []
+    pick = ''
+    log.debug('Looking for %i files'%options.filenumber)
+    while len(picks) < options.filenumber:
+        pick = pick_file(options.search_path, options.one_filesystem)
+        if pick not in picks:
+            picks.append(pick)
+            print pick
+            if options.compare_path is not None:
+                compare_path = options.compare_path + \
+                        pick.lstrip(options.search_path)
+                compare(pick, compare_path)
+        else:
+            log.info('Picked duplicate %s, trying again'%pick)
+
+if __name__ == "__main__":
+    main()
