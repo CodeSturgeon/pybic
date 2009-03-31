@@ -35,6 +35,7 @@ class MaxFilter(logging.Filter):
     Used to seperate stdout and stderr output
     '''
     def filter(self, rec):
+        '''Only allow records under ERROR'''
         if rec.levelno < logging.ERROR:
             return 1
         else:
@@ -56,6 +57,7 @@ stderr.setFormatter(stderr_fmt)
 log.addHandler(stderr)
 
 def pick_file(root_path):
+    '''Given a path, select a file at random'''
     log = logging.getLogger('pick_file')
     # Set [c]urrent [w]orking [p]ath
     cwp = root_path
@@ -101,6 +103,7 @@ def pick_file(root_path):
     return cwp
 
 def compare(file_a, file_b):
+    '''Compare two files for consistancy'''
     print file_b
     return True
 
