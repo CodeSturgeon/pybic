@@ -17,7 +17,7 @@ class MaxFilter(logging.Filter):
         else:
             return 0
 
-def pick_file(root_path, one_filesystem=False):
+def pick_file(root_path, one_filesystem=False, skip_dotfiles=True):
     '''Given a path, select a file at random'''
     log = logging.getLogger('pick_file')
     # Set [c]urrent [w]orking [p]ath
@@ -55,6 +55,10 @@ def pick_file(root_path, one_filesystem=False):
                         or os.path.islink(pick_path)):
                 # If not, we remove it from the options and pick again
                 log.info('avoiding unuseful %s'%pick_path)
+                cwp_contents.remove(pick)
+                continue
+            elif skip_dotfiles and pick.startswith('.'):
+                log.info('avoiding dotfile %s'%pick_path)
                 cwp_contents.remove(pick)
                 continue
             # By this point we are happy with the pick and move on
@@ -95,12 +99,15 @@ def main():
             action='store_true', help='Do not follow mount points')
     parser.add_option('-f', '--follow-mounts', dest='one_filesystem',
             action='store_false', help='Do follow mount points')
+    parser.add_option('', '--check-dot-files', dest='skip_dotfiles',
+            action='store_false',
+            help='Do check files/folders that start with "."')
     parser.add_option('-v', '--verbose', action='store_const', const=20,
             dest='stdout_logLevel', help='Get extra information on the picking')
     parser.add_option('-V', '--debug', action='store_const', const=0,
             dest='stdout_logLevel', help='Dump all debugging information')
     parser.set_defaults(stdout_logLevel=30, filenumber=10, search_path='/',
-            one_filesystem=True)
+            one_filesystem=True, skip_dotfiles=True)
     (options, args) = parser.parse_args()
 
     # Setup logging for commandline use
@@ -127,14 +134,14 @@ def main():
     log.debug('Looking for %i files'%options.filenumber)
     search_path = os.path.normpath(options.search_path)
     while len(picks) < options.filenumber:
-        pick = pick_file(search_path, options.one_filesystem)
+        pick = pick_file(search_path, options.one_filesystem,
+                options.skip_dotfiles)
         if pick not in picks:
             picks.append(pick)
             print pick
             if options.compare_path is not None:
                 compare_path = os.path.join(options.compare_path,
-                        os.path.normpath(pick[len(search_path)+1:])
-                        )
+                        os.path.normpath(pick[len(search_path)+1:]))
                 if not compare(pick, compare_path):
                     print 'files do not match :('
                     sys.exit(2)
