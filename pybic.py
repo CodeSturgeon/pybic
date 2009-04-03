@@ -65,8 +65,22 @@ def pick_file(root_path, one_filesystem=False):
 
 def compare(file_a, file_b):
     '''Compare two files for consistancy'''
-    print file_b
-    return True
+    log = logging.getLogger('compare')
+    log.debug('Files: %s %s'%(file_a,file_b))
+    def system_md5(file):
+        # Hacky but probbaly faster for now
+        md5_ret = os.popen('md5sum "%s"'%file).read()
+        log.debug('%s'%md5_ret)
+        try:
+            md5_ret.split()[0]
+        except IndexError:
+            # Generally ile not found (only output to stderr)
+            return False
+    md5_a = system_md5(file_a)
+    md5_b = system_md5(file_b)
+    if md5_a == md5_b:
+        return True
+    return False
 
 def main():
     '''Standard main loop'''
