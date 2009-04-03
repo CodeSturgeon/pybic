@@ -59,7 +59,7 @@ def pick_file(root_path, one_filesystem=False):
                 continue
             # By this point we are happy with the pick and move on
             cwp = pick_path
-            log.debug('picking %s'%cwp)
+            log.info('picking %s'%cwp)
             break
     return cwp
 
