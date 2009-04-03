@@ -111,15 +111,19 @@ def main():
     picks = []
     pick = ''
     log.debug('Looking for %i files'%options.filenumber)
+    search_path = os.path.normpath(options.search_path)
     while len(picks) < options.filenumber:
-        pick = pick_file(options.search_path, options.one_filesystem)
+        pick = pick_file(search_path, options.one_filesystem)
         if pick not in picks:
             picks.append(pick)
             print pick
             if options.compare_path is not None:
-                compare_path = options.compare_path + \
-                        pick.lstrip(options.search_path)
-                compare(pick, compare_path)
+                compare_path = os.path.join(options.compare_path,
+                        os.path.normpath(pick[len(search_path)+1:])
+                        )
+                if not compare(pick, compare_path):
+                    print 'files do not match :('
+                    sys.exit(2)
         else:
             log.info('Picked duplicate %s, trying again'%pick)
 
