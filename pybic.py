@@ -70,10 +70,10 @@ def pick_file(root_path, one_filesystem=False, skip_dotfiles=True):
 def compare(file_a, file_b):
     '''Compare two files for consistancy'''
     log = logging.getLogger('compare')
-    log.debug('Files: %s %s'%(file_a,file_b))
-    def system_md5(file):
+    log.debug('Files: %s %s'%(file_a, file_b))
+    def system_md5(file_path):
         # Hacky but probbaly faster for now
-        md5_ret = os.popen('md5sum "%s"'%file).read()
+        md5_ret = os.popen('md5sum "%s"'%file_path).read()
         log.debug('%s'%md5_ret)
         try:
             md5_ret.split()[0]
