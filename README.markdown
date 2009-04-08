@@ -3,11 +3,11 @@
 A small tool to help verify the integrity of backups.
 
 ## Basic usage
-In it's simplist form, PyBIC will select 10 random files from a path and print them to stdout.
-`~$ pybic.py -s /path/to/files
-/path/to/files/file
-/path/to/files/some/sub/path/file
-/path/to/files/antoher/sub/path/file
+In it's simplist form, PyBIC will select 10 random files from a path and print them to stdout.  
+`~$ pybic.py -s /path/to/files  
+/path/to/files/file  
+/path/to/files/some/sub/path/file  
+/path/to/files/antoher/sub/path/file  
 ...`
 
 ## Advanced usage (md5 checking)
